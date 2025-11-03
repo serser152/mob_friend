@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 
-from agent.agent import ask_llm
+from agent.agent import ask_llm, init_openrouter, init_gigachat
 
 class TestLLMBase:
 
-    def test_llm_answer(self):
+    def test_llm_openrouter_answer(self):
+        init_openrouter()
         assert 'hello' in ask_llm('hello').lower()
-    def test_llm_answer2(self):
-        assert 'hello' in ask_llm('hello').lower()
-    def test_llm_answer3(self):
-        assert 'hello' in ask_llm('hello').lower()
-    def test_llm_answer4(self):
-        assert 'hello' in ask_llm('hello').lower()
-    def test_llm_answer5(self):
-        assert 'hello' in ask_llm('hello').lower()
+
+    def test_llm_gigachat_answer(self):
+        init_gigachat()
+        assert 'привет' in ask_llm('hello').lower()
 
