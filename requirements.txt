@@ -1,0 +1,5 @@
+dotenv
+streamlit
+langchain-gigachat
+langchain-core
+langgraph
