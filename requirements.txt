@@ -1,5 +1,7 @@
 dotenv
 streamlit
 langchain-gigachat
+langchain_openai
 langchain-core
 langgraph
+pytest
