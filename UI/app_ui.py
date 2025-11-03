@@ -6,12 +6,12 @@ import os
 subdir = os.getcwd()
 sys.path.append(subdir)
 from agent.agent import ask_llm
-st.write(subdir)
+st.
 
 st.header('hello')
 st.markdown(' ** applicatoion assistant ** ')
 
 promt = st.text_input('Message:')
 with st.spinner("Wait for it...", show_time=True):
-    ans = ask_llm(promt)
+    ans = "asdf" #ask_llm(promt)
 st.write(ans)
