@@ -1,7 +1,8 @@
 dotenv
 streamlit
-langchain-gigachat
+langchain-gigachat==0.3.13a1
 langchain_openai
 langchain-core
 langgraph
 pytest
+langchain-tavily

@@ -6,21 +6,25 @@ import os
 subdir = os.getcwd()
 print(subdir+'/..')
 sys.path.append(subdir)
-from agent.agent import ask_llm, init_openrouter, init_gigachat
+from agent.agent import ask_llm, init_llm
 
 
 # диалог настройки
 @st.dialog('Настройки приложения', width='medium')
 def settings_dialog():
+        global use_search
+        global llm
         st.header('Параметры')
-        llm = st.radio('Выберете LLM',['openrouter', 'gigachat'])
+        llm = st.radio('Выберете LLM',[ 'gigachat', 'openrouter'], index=1 if llm == "openrouter" else 1)
 
         if llm == 'openrouter':
             mn=st.text_input('Имя модели:')
 
+        use_search = st.checkbox(label="Использовать поисковик tavily", value=use_search)
         # Кнопка для сохранения настроек
         if st.button('Сохранить'):
             st.session_state["llm"] = llm
+            st.session_state["use_search"] = use_search
             st.write(f'Настройки сохранены: модель = {llm}')
             st.rerun() # Перезапустить приложение, чтобы применить новые настройки
 
@@ -53,23 +57,24 @@ else:
 
 # initialize llm api
 with st.spinner("Загрузка...", show_time=True):
-    if st.session_state['llm'] == "openrouter":
-        init_openrouter()
-    else:
-        init_gigachat()
-
+    llm = st.session_state.get("llm", "gigachat")
+    use_search = st.session_state.get("use_search", False)
+    init_llm(llm, use_search)
 
 # main page
 st.markdown('## Персональный ассистент')
-st.markdown(f'### Здравствуйте {login}')
-st.markdown("---")
-promt = st.text_input('Message:')
-with st.spinner("Ждем ответа...", show_time=True):
-    ans = ask_llm(promt) if promt else ''
-st.markdown(ans)
-promt=''
 
-st.markdown('---')
-if st.button('Настройки'):
-    settings_dialog()
+if login:
+    st.markdown(f'### Здравствуйте {login}')
+    st.markdown("---")
+
+    promt = st.text_input('Message:')
+    with st.spinner("Ждем ответа...", show_time=True):
+        ans = ask_llm(promt) if promt else ''
+    st.markdown(ans)
+    promt=''
+
+    st.markdown('---')
+    if st.button('Настройки'):
+        settings_dialog()
 
