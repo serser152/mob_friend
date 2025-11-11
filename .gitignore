@@ -3,3 +3,6 @@ env
 *.pyc
 *pycache*
 venv
+tmp/*
+tmp
+
