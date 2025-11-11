@@ -98,8 +98,6 @@ def init_llm(name='gigachat', use_search=False):
 
     if use_search:
         tools_used = tools
-        for t in tools_used:
-            print(t.description)
     else:
         tools_used = []
 
