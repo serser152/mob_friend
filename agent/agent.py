@@ -63,7 +63,7 @@ def init_openrouter(model="meta-llama/llama-3.3-8b-instruct:free"):
     global llm
     llm=ChatOpenAI(model=model,
     base_url="https://openrouter.ai/api/v1",
-    api_key=environ["OPENROUTER_API_KEY"],)
+    api_key=environ.get("OPENROUTER_API_KEY",""))
 
 
 def init_gigachat():
@@ -71,7 +71,7 @@ def init_gigachat():
     Initialize Gigachat
     """
     global llm
-    llm = GigaChat(credentials=environ["GIGACHAT_API_KEY"],
+    llm = GigaChat(credentials=environ.get("GIGACHAT_API_KEY",""),
                     verify_ssl_certs=False)
 
 
