@@ -8,14 +8,19 @@ print(subdir+'/..')
 sys.path.append(subdir)
 from agent.agent import ask_llm, init_llm
 
-
+st.audio_input()
 # диалог настройки
 @st.dialog('Настройки приложения', width='medium')
 def settings_dialog():
         global use_search
         global llm
         st.header('Параметры')
-        llm = st.radio('Выберете LLM',[ 'gigachat', 'openrouter'], index=1 if llm == "openrouter" else 1)
+        llm = st.radio('Выберете LLM',
+                       ['gigachat', 'openrouter'],
+                       index=0 if llm == "gigachat" else 1,
+                       horizontal=True,
+                       key='llm')
+
 
         if llm == 'openrouter':
             mn=st.text_input('Имя модели:')
