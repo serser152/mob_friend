@@ -12,11 +12,11 @@
 2) Создать файл .env по примеру с .env.example. Заполнить ключи API
 3) Запуск на Linux:
 
-`
+```
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements
 ./run.sh
-`
+```
 
 
