@@ -6,3 +6,5 @@ venv
 tmp/*
 tmp
 *ipynb
+tmp_output.mp3
+
