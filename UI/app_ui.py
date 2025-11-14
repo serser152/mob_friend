@@ -50,31 +50,30 @@ def login_dialog():
 if 'llm' not in st.session_state:
     st.session_state["llm"] = "openrouter"
 
-if 'login' not in st.session_state:
+login = st.session_state.get("login", "")
+if login == "":
     login_dialog()
 else:
-    login = st.session_state["login"]
+    # initialize llm api
+    with st.spinner("Загрузка...", show_time=True):
+        llm = st.session_state.get("llm", "gigachat")
+        use_search = st.session_state.get("use_search", False)
+        init_llm(llm, use_search)
 
-# initialize llm api
-with st.spinner("Загрузка...", show_time=True):
-    llm = st.session_state.get("llm", "gigachat")
-    use_search = st.session_state.get("use_search", False)
-    init_llm(llm, use_search)
+    # main page
+    st.markdown('## Персональный ассистент')
 
-# main page
-st.markdown('## Персональный ассистент')
+    if login:
+        st.markdown(f'### Здравствуйте {login}')
+        st.markdown("---")
 
-if login:
-    st.markdown(f'### Здравствуйте {login}')
-    st.markdown("---")
+        promt = st.text_input('Message:')
+        with st.spinner("Ждем ответа...", show_time=True):
+            ans = ask_llm(promt) if promt else ''
+        st.markdown(ans)
+        promt=''
 
-    promt = st.text_input('Message:')
-    with st.spinner("Ждем ответа...", show_time=True):
-        ans = ask_llm(promt) if promt else ''
-    st.markdown(ans)
-    promt=''
-
-    st.markdown('---')
-    if st.button('Настройки'):
-        settings_dialog()
+        st.markdown('---')
+        if st.button('Настройки'):
+            settings_dialog()
 
