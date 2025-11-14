@@ -1,4 +1,4 @@
-## Mobile assistant / Мобильный ассистент
+## Mobile assistant / Мобильный ассистент 👽
 
 Назначение - Личный ассистент. Мини помощник по поиску в интернете, запоминанию и напоминанию задач.
 
@@ -17,6 +17,15 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements
 ./run.sh
+```
+
+Выведется строка типа 
+
+```
+  You can now view your Streamlit app in your browser.
+
+  Local URL: http://localhost:8501
+  Network URL: http://192.168.1.16:8501
 ```
 
 
