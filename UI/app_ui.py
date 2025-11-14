@@ -7,7 +7,7 @@ import sys
 import os
 subdir = os.getcwd()
 sys.path.append(subdir)
-from agent.agent import ask_llm, init_llm
+from agent.agent import ask_agent, init_llm
 
 
 # диалог настройки
@@ -17,6 +17,7 @@ def settings_dialog():
     llm_old = st.session_state.get("llm", "gigachat")
     use_search_old = st.session_state.get("use_search", False)
     voice_old = st.session_state.get("voice", False)
+    model_old = st.session_state.get("model", "openai/gpt-oss-20b:free")
 
     st.header('Параметры')
 
@@ -25,7 +26,7 @@ def settings_dialog():
                    ['gigachat', 'openrouter'],
                    index=0 if llm_old == "gigachat" else 1)
     if llm == 'openrouter':
-        mn=st.text_input('Имя модели:')
+        model = st.text_input('Имя модели:')
 
     # Включение голосового интерфейса
     voice = st.checkbox('Использовать голосовой интерфейс', value=voice_old)
@@ -38,6 +39,7 @@ def settings_dialog():
         st.session_state["llm"] = llm
         st.session_state["use_search"] = use_search
         st.session_state["voice"] = voice
+        st.session_state["model"] = model
         st.write(f'Настройки сохранены: модель = {llm}')
         st.rerun() # Перезапустить приложение, чтобы применить новые настройки
 
@@ -62,6 +64,7 @@ def login_dialog():
 llm = st.session_state.get("llm", "gigachat")
 use_search = st.session_state.get("use_search", False)
 voice = st.session_state.get("voice", False)
+model = st.session_state.get("model", "openai/gpt-oss-20b:free")
 
 login = st.session_state.get("login", "")
 if login == "":
@@ -95,17 +98,19 @@ else:
                 sound.seek(0)
                 with open('tmp_in.wav', 'wb') as f:
                     f.write(sound.read())
+                sound.seek(0)
 
-            sound.seek(0)
+            # transcribe recorded sound
             txt = file_to_text(sound)
 
+            # show transcribed text and player
             st.audio(sound)
             st.markdown(txt)
             prompt = txt
         else:
             prompt = st.text_input('Message:')
         with st.spinner("Ждем ответа...", show_time=True):
-            ans = ask_llm(prompt) if prompt else ''
+            ans = ask_agent(prompt) if prompt else ''
         st.markdown(ans)
         if voice and prompt != '':
             with st.spinner("Готовим голосовой ответ...", show_time=True):
