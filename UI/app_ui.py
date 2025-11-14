@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 import streamlit as st
-from click import prompt
 
 from sound_interface import file_to_text, text_to_speech
 from time import sleep
 import sys
 import os
 subdir = os.getcwd()
-print(subdir+'/..')
 sys.path.append(subdir)
 from agent.agent import ask_llm, init_llm
 
@@ -15,32 +13,33 @@ from agent.agent import ask_llm, init_llm
 # диалог настройки
 @st.dialog('Настройки приложения', width='medium')
 def settings_dialog():
-        global use_search
-        global llm
-        global voice
+    """Диалог настроек"""
+    llm_old = st.session_state.get("llm", "gigachat")
+    use_search_old = st.session_state.get("use_search", False)
+    voice_old = st.session_state.get("voice", False)
 
-        st.header('Параметры')
+    st.header('Параметры')
 
-        # Выбор LLM
-        llm = st.radio('Выберете LLM',
-                       ['gigachat', 'openrouter'],
-                       index=0 if llm == "gigachat" else 1)
-        if llm == 'openrouter':
-            mn=st.text_input('Имя модели:')
+    #Выбор LLM
+    llm = st.radio('Выберете LLM',
+                   ['gigachat', 'openrouter'],
+                   index=0 if llm_old == "gigachat" else 1)
+    if llm == 'openrouter':
+        mn=st.text_input('Имя модели:')
 
-        # Включние голосового интерфейса
-        voice = st.checkbox('Использовать голосовой интерфейс', value=voice)
+    # Включение голосового интерфейса
+    voice = st.checkbox('Использовать голосовой интерфейс', value=voice_old)
 
-        # Поисковик
-        use_search = st.checkbox(label="Использовать поисковик", value=use_search)
+    # Поисковик
+    use_search = st.checkbox(label="Использовать поисковик", value=use_search_old)
 
-        # Кнопка для сохранения настроек
-        if st.button('Сохранить'):
-            st.session_state["llm"] = llm
-            st.session_state["use_search"] = use_search
-            st.session_state["voice"] = voice
-            st.write(f'Настройки сохранены: модель = {llm}')
-            st.rerun() # Перезапустить приложение, чтобы применить новые настройки
+    # Кнопка для сохранения настроек
+    if st.button('Сохранить'):
+        st.session_state["llm"] = llm
+        st.session_state["use_search"] = use_search
+        st.session_state["voice"] = voice
+        st.write(f'Настройки сохранены: модель = {llm}')
+        st.rerun() # Перезапустить приложение, чтобы применить новые настройки
 
 
 # диалог логина
