@@ -22,10 +22,11 @@ class TestLLMBase:
 
     def test_llm_gigachat_answer_with_search(self):
         init_llm('gigachat', use_search=True)
-        assert 'привет' in ask_llm('hello').lower()
+        res =  ask_agent('Какой сегодня день недели? Ответь в одно слово.').lower()
+        assert res in ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
 
+    def test_agent_openrouter_answer_with_websearch(self):
+        init_llm('openrouter', use_search=True)
+        res =  ask_agent('Какой сегодня день недели? Ответь в одно слово.').lower()
+        assert res in ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
 
-    def test_agent_gigachat_answer(self):
-        init_llm('gigachat', use_search=True)
-        res = ask_agent('hello').lower()
-        assert len(res) > 5

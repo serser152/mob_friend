@@ -15,6 +15,11 @@ from datetime import datetime
 
 load_dotenv(find_dotenv())
 
+'''
+Tools
+Описание инструментов для агента
+'''
+
 
 tools=[]
 @tool
@@ -80,19 +85,24 @@ from datetime import date
 from langgraph.checkpoint.memory import InMemorySaver
 
 
+def init_llm(name='gigachat', model='meta-llama/llama-3.3-8b-instruct:free', use_search=False):
+    """
 
-
-
-
-
-def init_llm(name='gigachat', use_search=False):
+    :param name: openrouter/gigachat
+    :param model:
+        "meta-llama/llama-3.3-8b-instruct:free"
+        "z-ai/glm-4.5-air:free"
+        "openai/gpt-oss-20b:free"
+    :param use_search: use web search tools
+    :return:
+    """
     global llm
     global agent
 
     if name == 'gigachat':
         init_gigachat()
     elif name == 'openrouter':
-        init_openrouter()
+        init_openrouter(model=model)
     else:
         raise Exception('Unknown llm initialization')
 
@@ -137,5 +147,6 @@ def ask_agent(message: str) -> str:
     response = agent.invoke({'messages':[{'role':'user', 'content':message}]}, config=config)
     return response['messages'][-1].content
 
-#init_llm('gigachat', use_search=True)
-#print(ask_agent('Привет. Сколько сейчас времени?'))
+#init_llm('openrouter', use_search=True)
+#print(ask_agent('Какой сегодня день недели? Ответь в одно слово.'))
+#print(ask_agent('Какой сегодня день недели?'))
