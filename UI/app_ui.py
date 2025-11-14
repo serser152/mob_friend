@@ -26,8 +26,9 @@ def settings_dialog():
                    ['gigachat', 'openrouter'],
                    index=0 if llm_old == "gigachat" else 1)
     if llm == 'openrouter':
-        model = st.text_input('Имя модели:')
-
+        model = st.text_input('Имя модели:', value=model_old)
+    else:
+        model = ''
     # Включение голосового интерфейса
     voice = st.checkbox('Использовать голосовой интерфейс', value=voice_old)
 
@@ -39,8 +40,10 @@ def settings_dialog():
         st.session_state["llm"] = llm
         st.session_state["use_search"] = use_search
         st.session_state["voice"] = voice
-        st.session_state["model"] = model
+        if llm == 'openrouter':
+            st.session_state["model"] = model
         st.write(f'Настройки сохранены: модель = {llm}')
+        init_llm(llm, model, use_search)
         st.rerun() # Перезапустить приложение, чтобы применить новые настройки
 
 
@@ -72,7 +75,7 @@ if login == "":
 else:
     # initialize llm api
     with st.spinner("Загрузка...", show_time=True):
-        init_llm(llm, use_search)
+        init_llm(llm, model, use_search)
 
     # main page
     st.markdown('## Персональный ассистент')
@@ -87,21 +90,23 @@ else:
                 sleep(1)
 
             sound = st.audio_input('Голосовой ввод:',
-                                   on_change = change,
-                                   kwargs = {
+                                   # on_change = change,
+                                   # kwargs = {
 #                                       'sound': sound
-                                   },
+#                                    },
                                    )
 
             #save recorded sound to file
-            if sound:
-                sound.seek(0)
-                with open('tmp_in.wav', 'wb') as f:
-                    f.write(sound.read())
-                sound.seek(0)
+            # if sound:
+            #     sound.seek(0)
+            #     with open('tmp_in.wav', 'wb') as f:
+            #         f.write(sound.read())
 
             # transcribe recorded sound
-            txt = file_to_text(sound)
+            txt = ''
+            if sound:
+                sound.seek(0)
+                txt = file_to_text(sound)
 
             # show transcribed text and player
             st.audio(sound)

@@ -24,8 +24,8 @@ Tools
 tools=[]
 @tool
 def search_web_ddgs(query: str) -> str:
-    """ 
-    Найти информацию в интернете.
+    """
+    Найти информацию в интернете через поисковую систему DuckDuckGo.
     Агрументы:
     query - поисковый запрос
     """
@@ -39,8 +39,8 @@ tools.append(search_web_ddgs)
 
 @tool
 def search_web_tavily(query:str) -> str:
-    """ 
-    Найти информацию в интернете.
+    """
+    Найти информацию в интернете через поисковую систему Tavily.
     Агрументы:
     query - поисковый запрос
     """
@@ -53,7 +53,7 @@ tools.append(search_web_tavily)
 
 @tool
 def get_current_time():
-    """Получить текущее время и дату"""
+    """Получить реальное время и дату"""
     dt=datetime.now()
     return dt.strftime('%H:%M:%S %d.%m.%Y')
 
@@ -107,6 +107,7 @@ def init_llm(name='gigachat', model='meta-llama/llama-3.3-8b-instruct:free', use
         raise Exception('Unknown llm initialization')
 
     if use_search:
+        print('Use search tools')
         tools_used = tools
     else:
         tools_used = []
@@ -119,6 +120,8 @@ def init_llm(name='gigachat', model='meta-llama/llama-3.3-8b-instruct:free', use
     system_prompt = (
         f"Сегодня {today}. "
         "Ты полезный ассистент. Используй search_web_tavily и search_web_ddgs для поиска информации в интернете."
+        "get_current_time - получить текущее время и дату."
+        "Отвечай кратко и по делу."
     )
     agent = create_agent(
             model = llm,
@@ -147,6 +150,6 @@ def ask_agent(message: str) -> str:
     response = agent.invoke({'messages':[{'role':'user', 'content':message}]}, config=config)
     return response['messages'][-1].content
 
-#init_llm('openrouter', use_search=True)
-#print(ask_agent('Какой сегодня день недели? Ответь в одно слово.'))
-#print(ask_agent('Какой сегодня день недели?'))
+init_llm('gigachat', use_search=True)
+print(ask_agent('Какой сегодня день недели? Ответь в одно слово.'))
+print(ask_agent('Сколько сейчас времени?'))

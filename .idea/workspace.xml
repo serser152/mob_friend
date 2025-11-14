@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d0624009-4031-4339-9ee5-b1606af8bba3" name="Changes" comment="fix web-search usage">
+    <list default="true" id="d0624009-4031-4339-9ee5-b1606af8bba3" name="Changes" comment="fix web search, fix model selection for openrouter">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/app_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/UI/app_ui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/agent/agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/agent/agent.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,14 +33,16 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python tests.Python tests for tests.test_agent.TestLLMBase.executor": "Run",
     "Python tests.Python tests for tests.test_agent.TestLLMBase.test_agent_openrouter_answer_with_websearch.executor": "Run",
     "Python tests.Python tests for tests.test_agent.TestLLMBase.test_llm_gigachat_answer_with_search.executor": "Run",
     "Python tests.Python tests in test_agent.py.executor": "Run",
     "Python.agent.executor": "Run",
+    "Python.app_ui.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "feat/background__listener",
     "settings.editor.selected.configurable": "memory.settings"
   }
 }]]></component>
@@ -64,6 +67,21 @@
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
       <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for tests.test_agent.TestLLMBase" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="mob_friend" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;tests.test_agent.TestLLMBase&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <configuration name="Python tests for tests.test_agent.TestLLMBase.test_agent_openrouter_answer_with_websearch" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
@@ -115,8 +133,9 @@
       <list>
         <item itemvalue="Python.agent" />
         <item itemvalue="Python tests.Python tests for tests.test_agent.TestLLMBase.test_llm_gigachat_answer_with_search" />
-        <item itemvalue="Python tests.Python tests for tests.test_agent.TestLLMBase.test_agent_openrouter_answer_with_websearch" />
+        <item itemvalue="Python tests.Python tests for tests.test_agent.TestLLMBase" />
         <item itemvalue="Python tests.Python tests in test_agent.py" />
+        <item itemvalue="Python tests.Python tests for tests.test_agent.TestLLMBase.test_agent_openrouter_answer_with_websearch" />
       </list>
     </recent_temporary>
   </component>
@@ -183,7 +202,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763124085967</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="fix web search, fix model selection for openrouter">
+      <option name="closed" value="true" />
+      <created>1763124394535</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1763124394535</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -191,6 +218,7 @@
     <MESSAGE value="add tests" />
     <MESSAGE value="README update" />
     <MESSAGE value="fix web-search usage" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix web-search usage" />
+    <MESSAGE value="fix web search, fix model selection for openrouter" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix web search, fix model selection for openrouter" />
   </component>
 </project>
