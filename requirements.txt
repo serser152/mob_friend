@@ -7,3 +7,5 @@ langgraph
 pytest
 langchain-tavily
 ddgs
+speechrecognition
+gtts
