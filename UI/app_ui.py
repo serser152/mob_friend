@@ -8,7 +8,7 @@ print(subdir+'/..')
 sys.path.append(subdir)
 from agent.agent import ask_llm, init_llm
 
-st.audio_input()
+
 # диалог настройки
 @st.dialog('Настройки приложения', width='medium')
 def settings_dialog():
@@ -40,8 +40,8 @@ def login_dialog():
         st.header('Вход')
         login = st.text_input('Login:')
 
-        if len(login) < 3:
-            st.markdown('Слишком малая длинна логина')
+        if len(login) <= 3:
+            st.markdown('Логин должен минимум 3 символа')
         else:
             # Кнопка для сохранения настроек
             if st.button('Сохранить'):
