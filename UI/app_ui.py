@@ -7,7 +7,7 @@ import sys
 import os
 subdir = os.getcwd()
 sys.path.append(subdir)
-from agent.agent import ask_agent, init_llm
+from agent.agent import MyAgent
 
 
 # диалог настройки
@@ -39,7 +39,10 @@ def settings_dialog():
         st.session_state["llm"] = llm
         st.session_state["use_search"] = use_search
         st.session_state["voice"] = voice
-        st.session_state["model"] = model
+        try:
+            st.session_state["model"] = model
+        except:
+            pass
         st.write(f'Настройки сохранены: модель = {llm}')
         st.rerun() # Перезапустить приложение, чтобы применить новые настройки
 
@@ -67,12 +70,13 @@ voice = st.session_state.get("voice", False)
 model = st.session_state.get("model", "openai/gpt-oss-20b:free")
 
 login = st.session_state.get("login", "")
+agent = MyAgent()
 if login == "":
     login_dialog()
 else:
     # initialize llm api
     with st.spinner("Загрузка...", show_time=True):
-        init_llm(llm, use_search)
+        agent = MyAgent(llm, model, use_search)
 
     # main page
     st.markdown('## Персональный ассистент')
@@ -110,7 +114,7 @@ else:
         else:
             prompt = st.text_input('Message:')
         with st.spinner("Ждем ответа...", show_time=True):
-            ans = ask_agent(prompt) if prompt else ''
+            ans = agent.ask(prompt) if prompt else ''
         st.markdown(ans)
         if voice and prompt != '':
             with st.spinner("Готовим голосовой ответ...", show_time=True):

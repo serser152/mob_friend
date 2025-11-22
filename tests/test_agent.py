@@ -1,32 +1,32 @@
 #!/usr/bin/env python
 
-from agent.agent import ask_llm, init_openrouter, init_gigachat, init_llm, ask_agent
+from agent.agent import MyAgent
 
 class TestLLMBase:
 
     def test_llm_openrouter_answer(self):
-        init_openrouter()
-        assert 'hello' in ask_llm('hello').lower()
+        a = MyAgent('openrouter')
+        assert 'hello' in a.ask_llm('hello').lower()
 
     def test_llm_gigachat_answer(self):
-        init_gigachat()
-        assert 'привет' in ask_llm('hello').lower()
+        a = MyAgent('gigachat')
+        assert 'привет' in a.ask_llm('hello').lower()
 
     def test_llm_openrouter_answer2(self):
-        init_llm("openrouter")
-        assert 'hello' in ask_llm('hello').lower()
+        a = MyAgent('openrouter')
+        assert 'hello' in a.ask_llm('hello').lower()
 
     def test_llm_gigachat_answer2(self):
-        init_llm("gigachat")
-        assert 'привет' in ask_llm('hello').lower()
+        a = MyAgent('gigachat')
+        assert 'привет' in a.ask_llm('hello').lower()
 
     def test_llm_gigachat_answer_with_search(self):
-        init_llm('gigachat', use_search=True)
-        res =  ask_agent('Какой сегодня день недели? Ответь в одно слово.').lower()
+        a = MyAgent('gigachat', use_search=True)
+        res =  a.ask('Какой сегодня день недели? Ответь в одно слово.').lower()
         assert res in ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
 
     def test_agent_openrouter_answer_with_websearch(self):
-        init_llm('openrouter', use_search=True)
-        res =  ask_agent('Какой сегодня день недели? Ответь в одно слово.').lower()
+        a = MyAgent('openrouter', use_search=True)
+        res =  a.ask('Какой сегодня день недели? Ответь в одно слово.').lower()
         assert res in ['понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота', 'воскресенье']
 

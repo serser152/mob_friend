@@ -1,3 +1,5 @@
+python-dotenv
+langchain
 dotenv
 streamlit
 langchain-gigachat==0.3.13a1
