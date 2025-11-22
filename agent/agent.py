@@ -18,6 +18,11 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 load_dotenv(find_dotenv())
 
+'''
+Tools
+Описание инструментов для агента
+'''
+
 
 # Tools
 # Описание инструментов для агента
@@ -97,7 +102,6 @@ def init_llm(
         model='meta-llama/llama-3.3-8b-instruct:free'
 ):
     """
-
     :param name: openrouter/gigachat
     :param model:
         "meta-llama/llama-3.3-8b-instruct:free"
@@ -152,10 +156,6 @@ def init_agent(
             checkpointer=checkpointer,
             )
     return llm, agent
-
-
-
-
 
 
 class MyAgent:
