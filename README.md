@@ -10,7 +10,14 @@ Personal assistant. Small personal helper to find info in the internet and do so
 ### Install:
 1) git clone https://github.com/serser152/mob_friend
 2) Create .env like .env.example. Fill the values
-3) Run on linux:
+3) (optional) Enable https 
+```
+mv .streamlit/config.toml.example .streamlit/config.toml
+cd keys
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365
+```
+remember password!
+4) Run on linux:
 
 ```
 python -m venv venv
@@ -18,7 +25,7 @@ source venv/bin/activate
 pip install -r requirements
 ./run.sh
 ```
-
+enter password for https
 the following will be displayed 
 
 ```

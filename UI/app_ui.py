@@ -85,8 +85,10 @@ def settings_dialog():
         cookies["voice_input"] = str(voice_input_enabled)
         cookies["voice_output"] = str(voice_output_enabled)
         cookies["model"] = mdl
+
         cookies.save()
         st.write(f'Settings saved')
+        print('Saving setttings:', cookies)
         st.rerun() # restart app
 
 
@@ -97,7 +99,7 @@ def login_dialog():
     Login dialog
     Reading and saving login for unique user
     """
-    cookies = get_all_cookies()
+    #cookies = get_all_cookies()
     st.header('Enter')
     login = st.text_input('Login:')
 
@@ -105,6 +107,7 @@ def login_dialog():
         st.markdown('Login length must be more than 3 symbols')
     else:
         cookies["login"] = login
+        print('Saving logins:', cookies)
         cookies.save()
         st.write(f'Hello, {login}')
         st.rerun() # restart app
@@ -115,9 +118,9 @@ def login_dialog():
 
 cookies = get_all_cookies()
 llm = cookies.get("llm", "gigachat")
-use_search = cookies.get("use_search", False)
-voice_input = cookies.get("voice_input", False)
-voice_output = cookies.get("voice_output", False)
+use_search = bool(cookies.get("use_search", False))
+voice_input = bool(cookies.get("voice_input", False))
+voice_output = bool(cookies.get("voice_output", False))
 model = cookies.get("model", "openai/gpt-oss-20b:free")
 login = cookies.get("login", "")
 #save cookies
@@ -126,10 +129,16 @@ cookies["use_search"] = str(use_search)
 cookies["voice_input"] = str(voice_input)
 cookies["voice_output"] = str(voice_output)
 cookies["model"] = model
-cookies = get_all_cookies()
-
-
+print("Readed cookies")
+print(cookies)
 cookies.save()
+
+print(f"""
+voice_input: {voice_input} {type(voice_input)}
+voice_output: {voice_output} {type(voice_output)}
+use_search: {use_search} {type(use_search)}
+""")
+
 #agent = MyAgent(llm, model, use_search)
 if login == "":
     login_dialog()
