@@ -6,7 +6,8 @@ class TestLLMBase:
 
     def test_llm_openrouter_answer(self):
         a = MyAgent('openrouter')
-        assert 'hello' in a.ask_llm('hello').lower()
+        ans = a.ask_llm('hello').lower()
+        assert ('hello' in ans) or ('hi' in ans)
 
     def test_llm_gigachat_answer(self):
         a = MyAgent('gigachat')

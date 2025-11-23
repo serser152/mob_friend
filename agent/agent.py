@@ -18,22 +18,19 @@ from langgraph.checkpoint.memory import InMemorySaver
 
 load_dotenv(find_dotenv())
 
-'''
-Tools
-Описание инструментов для агента
-'''
 
-
+#=======================================
 # Tools
-# Описание инструментов для агента
+# Tools for agent
+#=======================================
 
 tools=[]
 @tool
 def search_web_ddgs(query: str) -> str:
     """ 
-    Найти информацию в интернете.
-    Агрументы:
-    query - поисковый запрос
+    Find information in web.
+    Args:
+    query - search query
     """
     with DDGS() as ddgs:
         max_results=5
@@ -47,9 +44,9 @@ tools.append(search_web_ddgs)
 @tool
 def search_web_tavily(query:str) -> str:
     """ 
-    Найти информацию в интернете.
-    Агрументы:
-    query - поисковый запрос
+    Find information in web.
+    Args:
+    query - search query
     """
     tav = TavilySearch(max_results=5)
     res=tav.invoke({'query':query})
@@ -60,7 +57,7 @@ tools.append(search_web_tavily)
 
 @tool
 def get_current_time():
-    """Получить текущее время и дату"""
+    """Get current time and date"""
     dt=datetime.now()
     return dt.strftime('%H:%M:%S %d.%m.%Y')
 
@@ -68,13 +65,24 @@ tools.append(get_current_time)
 
 @tool
 def get_current_date():
-    """Получить текущую дату"""
+    """Get current date"""
     dt=datetime.now()
     return dt.strftime('%Y-%m-%d')
 
 tools.append(get_current_date)
 
 
+#======================================
+#   Agent section
+#======================================
+
+
+class WrongLLMException(Exception):
+    """ Wrong LLM exception
+    Specify wrong llm name or model"""
+    def __init__(self, message="Wrong LLM"):
+        self.message = message
+        super().__init__("Invalid LLM:" + self.message)
 
 
 
@@ -109,13 +117,13 @@ def init_llm(
         "openai/gpt-oss-20b:free"
     :return: llm instance
     """
-    llm = None
+
     if name == 'gigachat':
         llm = init_gigachat()
     elif name == 'openrouter':
         llm = init_openrouter(model=model)
     else:
-        raise Exception('Unknown llm initialization')
+        raise WrongLLMException('Unknown llm initialization')
     return llm
 
 def init_agent(
@@ -159,6 +167,10 @@ def init_agent(
 
 
 class MyAgent:
+    """
+    Agent class
+    For using agent or agent crowd
+    """
     llm, agent = None, None
 
     def __init__(self, name='gigachat', model='openai/gpt-oss-20b:free', use_search=False):
@@ -167,18 +179,18 @@ class MyAgent:
 
     def ask(self, message: str) -> str:
         """
-        return agent anser
+        return agent answer
         """
 
         response = self.agent.invoke(
             {'messages': [{'role': 'user', 'content': message}]},
             config = self.config,
-            print_mode=('updates'))
+            print_mode='updates')
         return response['messages'][-1].content
 
     def ask_llm(self, message: str) -> str:
         """
-        return model anser
+        return model answer
         """
         response = self.llm.invoke(message)
         return response.content

@@ -1,16 +1,16 @@
-## Mobile assistant / Мобильный ассистент 👽
+Mobile assistant 👽
+----
 
-Назначение - Личный ассистент. Мини помощник по поиску в интернете, запоминанию и напоминанию задач.
+Personal assistant. Small personal helper to find info in the internet and do some planning.
 
-### Функции:
-  - помощь с планированием дня
-  - запоминание и напоминание о задачах
-  - ответы на вопросы на основе поисков в интернете
+### Features:
+  - voice dialog
+  - Answer questions based on websearch
 
-### Установка:
+### Install:
 1) git clone https://github.com/serser152/mob_friend
-2) Создать файл .env по примеру с .env.example. Заполнить ключи API
-3) Запуск на Linux:
+2) Create .env like .env.example. Fill the values
+3) Run on linux:
 
 ```
 python -m venv venv
@@ -19,7 +19,7 @@ pip install -r requirements
 ./run.sh
 ```
 
-Выведется строка типа 
+the following will be displayed 
 
 ```
   You can now view your Streamlit app in your browser.
