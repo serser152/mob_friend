@@ -39,20 +39,22 @@ def get_all_cookies():
 @st.dialog('Settings', width='medium')
 def settings_dialog():
     """Settings dialog"""
-    #cookies = get_all_cookies()
     # get values from session state
+    login = cookies.get("login", "")
     llm_provider = cookies.get("llm", "gigachat")
-    use_search_tool = cookies.get("use_search", False)
-    voice_input_enabled = cookies.get("voice_input", False)
-    voice_output_enabled = cookies.get("voice_output", False)
+    use_search_tool = cookies.get("use_search", "False")
+    voice_input_enabled = cookies.get("voice_input", "False")
+    voice_output_enabled = cookies.get("voice_output", "False")
     mdl = cookies.get("model", "openai/gpt-oss-20b:free")
 
-    use_search_tool = bool(use_search_tool)
-    voice_input_enabled = bool(voice_input_enabled)
-    voice_output_enabled = bool(voice_output_enabled)
+    use_search_tool = True if use_search_tool == "True" else False
+    voice_input_enabled = True if voice_input_enabled == "True" else False
+    voice_output_enabled = True if voice_output_enabled == "True" else False
 
     # show form
     st.header('Settings')
+
+    login = st.text_input('Login:', value=login)
 
     #Выбор LLM
     llm_providers = ['gigachat', 'openrouter']
@@ -85,10 +87,10 @@ def settings_dialog():
         cookies["voice_input"] = str(voice_input_enabled)
         cookies["voice_output"] = str(voice_output_enabled)
         cookies["model"] = mdl
+        cookies["login"] = login
 
         cookies.save()
         st.write(f'Settings saved')
-        print('Saving setttings:', cookies)
         st.rerun() # restart app
 
 
@@ -107,7 +109,6 @@ def login_dialog():
         st.markdown('Login length must be more than 3 symbols')
     else:
         cookies["login"] = login
-        print('Saving logins:', cookies)
         cookies.save()
         st.write(f'Hello, {login}')
         st.rerun() # restart app
@@ -118,9 +119,9 @@ def login_dialog():
 
 cookies = get_all_cookies()
 llm = cookies.get("llm", "gigachat")
-use_search = bool(cookies.get("use_search", False))
-voice_input = bool(cookies.get("voice_input", False))
-voice_output = bool(cookies.get("voice_output", False))
+use_search = True if cookies.get("use_search", "False") == "True" else False
+voice_input = True if cookies.get("voice_input", "False") == "True" else False
+voice_output = True if cookies.get("voice_output", "False") == "True" else False
 model = cookies.get("model", "openai/gpt-oss-20b:free")
 login = cookies.get("login", "")
 #save cookies
@@ -129,17 +130,8 @@ cookies["use_search"] = str(use_search)
 cookies["voice_input"] = str(voice_input)
 cookies["voice_output"] = str(voice_output)
 cookies["model"] = model
-print("Readed cookies")
-print(cookies)
 cookies.save()
 
-print(f"""
-voice_input: {voice_input} {type(voice_input)}
-voice_output: {voice_output} {type(voice_output)}
-use_search: {use_search} {type(use_search)}
-""")
-
-#agent = MyAgent(llm, model, use_search)
 if login == "":
     login_dialog()
 else:
@@ -182,7 +174,7 @@ else:
             st.markdown("You: " + txt)
             prompt = txt
         else:
-            prompt = st.text_input('Message:')
+            prompt = st.text_input('Message:', value='')
         with st.spinner("Preparing answer...", show_time=True):
             ans = agent.ask(prompt) if prompt else ''
         st.markdown(ans)
@@ -193,5 +185,5 @@ else:
         prompt=''
 
         st.markdown('---')
-        if st.button('Settings'):
+        if st.button('⚙️ Settings'):
             settings_dialog()
