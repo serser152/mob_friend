@@ -7,24 +7,49 @@ import sys
 import os
 
 import streamlit as st
-from  .sound_interface import file_to_text, text_to_speech
+from streamlit_cookies_manager import EncryptedCookieManager, CookieManager
+from  sound_interface import file_to_text, text_to_speech
 from time import sleep
-from agent.agent import MyAgent
+
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv())
 
 subdir = os.getcwd()
 sys.path.append(subdir)
 
-# диалог настройки
+from agent.agent import MyAgent
+
+cookies = CookieManager(
+    prefix="mob_friend/",
+    #password=os.environ.get("COOKIES_PASSWORD", "My super secret password"),
+)
+if not cookies.ready():
+    st.stop()
+
+
+def get_all_cookies():
+    return cookies
+
+
+#======================
+#   dialogs
+#======================
+
 @st.dialog('Settings', width='medium')
 def settings_dialog():
     """Settings dialog"""
-
+    #cookies = get_all_cookies()
     # get values from session state
-    llm_provider = st.session_state.get("llm", "gigachat")
-    use_search_tool = st.session_state.get("use_search", False)
-    voice_input = st.session_state.get("voice_input", False)
-    voice_output = st.session_state.get("voice_output", False)
-    mdl = st.session_state.get("model", "openai/gpt-oss-20b:free")
+    llm_provider = cookies.get("llm", "gigachat")
+    use_search_tool = cookies.get("use_search", False)
+    voice_input_enabled = cookies.get("voice_input", False)
+    voice_output_enabled = cookies.get("voice_output", False)
+    mdl = cookies.get("model", "openai/gpt-oss-20b:free")
+
+    use_search_tool = bool(use_search_tool)
+    voice_input_enabled = bool(voice_input_enabled)
+    voice_output_enabled = bool(voice_output_enabled)
 
     # show form
     st.header('Settings')
@@ -47,20 +72,20 @@ def settings_dialog():
                          )
 
     # Включение голосового интерфейса
-    voice_input = st.checkbox('Voice input', value = voice_input)
-    voice_output = st.checkbox('Voice output', value = voice_output)
+    voice_input_enabled = st.checkbox('Voice input', value = voice_input_enabled)
+    voice_output_enabled = st.checkbox('Voice output', value = voice_output_enabled)
 
     # Поисковик
     use_search_tool = st.checkbox(label="Use websearch tools", value = use_search_tool)
 
     # Кнопка для сохранения настроек
     if st.button('Save'):
-        st.session_state["llm"] = llm_provider
-        st.session_state["use_search"] = use_search_tool
-        st.session_state["voice_input"] = voice_input
-        st.session_state["voice_output"] = voice_output
-        st.session_state["model"] = mdl
-
+        cookies["llm"] = llm_provider
+        cookies["use_search"] = str(use_search_tool)
+        cookies["voice_input"] = str(voice_input_enabled)
+        cookies["voice_output"] = str(voice_output_enabled)
+        cookies["model"] = mdl
+        cookies.save()
         st.write(f'Settings saved')
         st.rerun() # restart app
 
@@ -72,26 +97,39 @@ def login_dialog():
     Login dialog
     Reading and saving login for unique user
     """
+    cookies = get_all_cookies()
     st.header('Enter')
     login = st.text_input('Login:')
 
     if len(login) <= 3:
         st.markdown('Login length must be more than 3 symbols')
     else:
-        # Кнопка для сохранения настроек
-        if st.button('Save'):
-            st.session_state["login"] = login
-            st.write(f'Hello, {login}')
-            st.rerun() # Перезапустить приложение, чтобы применить новые настройки
+        cookies["login"] = login
+        cookies.save()
+        st.write(f'Hello, {login}')
+        st.rerun() # restart app
 
-# Проверка ключей
+#======================
+#   main page
+#======================
 
-llm = st.session_state.get("llm", "gigachat")
-use_search = st.session_state.get("use_search", False)
-voice_input = st.session_state.get("voice_input", False)
-voice_output = st.session_state.get("voice_output", False)
-model = st.session_state.get("model", "openai/gpt-oss-20b:free")
-login = st.session_state.get("login", "")
+cookies = get_all_cookies()
+llm = cookies.get("llm", "gigachat")
+use_search = cookies.get("use_search", False)
+voice_input = cookies.get("voice_input", False)
+voice_output = cookies.get("voice_output", False)
+model = cookies.get("model", "openai/gpt-oss-20b:free")
+login = cookies.get("login", "")
+#save cookies
+cookies["llm"] = llm
+cookies["use_search"] = str(use_search)
+cookies["voice_input"] = str(voice_input)
+cookies["voice_output"] = str(voice_output)
+cookies["model"] = model
+cookies = get_all_cookies()
+
+
+cookies.save()
 #agent = MyAgent(llm, model, use_search)
 if login == "":
     login_dialog()
@@ -112,7 +150,7 @@ else:
                 #st.text =  sound.size
                 sleep(1)
 
-            sound = st.audio_input('Voice in:',
+            sound = st.audio_input('Your voice input:',
                                    on_change = change,
                                    kwargs = {
 #                                       'sound': sound
@@ -120,18 +158,19 @@ else:
                                    )
 
             #save recorded sound to file
+            txt = ''
             if sound:
                 sound.seek(0)
                 with open('tmp_in.wav', 'wb') as f:
                     f.write(sound.read())
                 sound.seek(0)
 
-            # transcribe recorded sound
-            txt = file_to_text(sound)
+                # transcribe recorded sound
+                txt = file_to_text(sound)
 
-            # show transcribed text and player
-            st.audio(sound)
-            st.markdown(txt)
+                # show transcribed text and player
+                st.audio(sound)
+            st.markdown("You: " + txt)
             prompt = txt
         else:
             prompt = st.text_input('Message:')

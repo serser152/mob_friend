@@ -4,19 +4,21 @@ Agent module
 Agent tools and llm initialization
 """
 
-from os import environ
-from datetime import datetime
 from datetime import date
-from dotenv import load_dotenv, find_dotenv
-from langchain_openai import ChatOpenAI
-from langchain_gigachat.chat_models import GigaChat
-from langchain_tavily import TavilySearch
-from langchain.tools import tool
-from langchain.agents import create_agent
+from datetime import datetime
+from os import environ
+
 from ddgs import DDGS
+from dotenv import load_dotenv, find_dotenv
+from langchain.agents import create_agent
+from langchain.tools import tool
+from langchain_gigachat.chat_models import GigaChat
+from langchain_openai import ChatOpenAI
+from langchain_tavily import TavilySearch
 from langgraph.checkpoint.memory import InMemorySaver
 
 load_dotenv(find_dotenv())
+
 
 
 #=======================================
@@ -48,7 +50,7 @@ def search_web_tavily(query:str) -> str:
     Args:
     query - search query
     """
-    tav = TavilySearch(max_results=5)
+    tav = TavilySearch(max_results=15)
     res=tav.invoke({'query':query})
     return '\n'.join([t['title']+":"+t['content'] for t in res['results']])
 
@@ -59,7 +61,7 @@ tools.append(search_web_tavily)
 def get_current_time():
     """Get current time and date"""
     dt=datetime.now()
-    return dt.strftime('%H:%M:%S %d.%m.%Y')
+    return dt.strftime('Текущее время %H:%M:%S')
 
 tools.append(get_current_time)
 
@@ -67,7 +69,7 @@ tools.append(get_current_time)
 def get_current_date():
     """Get current date"""
     dt=datetime.now()
-    return dt.strftime('%Y-%m-%d')
+    return "Текущая дата "+dt.strftime('%d.%m.%Y')
 
 tools.append(get_current_date)
 
@@ -127,13 +129,13 @@ def init_llm(
     return llm
 
 def init_agent(
-        name='gigachat',
+        llm_provider='gigachat',
         model='openai/gpt-oss-20b:free',
         use_search=False
 ):
     """
 
-    :param name: openrouter/gigachat
+    :param llm_provider: openrouter/gigachat
     :param model:
         "meta-llama/llama-3.3-8b-instruct:free"
         "z-ai/glm-4.5-air:free"
@@ -141,7 +143,7 @@ def init_agent(
     :param use_search: use web search tools
     :return:
     """
-    llm = init_llm(name, model)
+    llm = init_llm(llm_provider, model)
 
     if use_search:
         tools_used = tools
@@ -155,7 +157,7 @@ def init_agent(
     system_prompt = (
         f"Сегодня {today}. "
         "Ты полезный ассистент. Используй search_web_tavily и "
-        "search_web_ddgs для поиска информации в интернете."
+        "search_web_ddgs для поиска информации в интернете. Отвечай кратко и простыми словами."
     )
     agent = create_agent(
             model = llm,
@@ -172,21 +174,37 @@ class MyAgent:
     For using agent or agent crowd
     """
     llm, agent = None, None
-
-    def __init__(self, name='gigachat', model='openai/gpt-oss-20b:free', use_search=False):
+    def __init__(self, name='gigachat', model='openai/gpt-oss-20b:free', use_search=False, verbose=False, max_iterations=5):
         self.llm, self.agent = init_agent(name, model, use_search)
+        self.max_iterations = max_iterations
+        self.verbose = verbose
         self.config = {'configurable': {'thread_id': 1}}
+
 
     def ask(self, message: str) -> str:
         """
         return agent answer
         """
 
-        response = self.agent.invoke(
-            {'messages': [{'role': 'user', 'content': message}]},
-            config = self.config,
-            print_mode='updates')
-        return response['messages'][-1].content
+        # response = self.agent.invoke(
+        #     {'messages': [{'role': 'user', 'content': message}]},
+        #     config = self.config,
+        #     print_mode='updates'
+        # )
+        # return response['messages'][-1].content
+
+        msg = {'messages': [{'role': 'user', 'content': message}]}
+        step = 0
+        ans = ''
+        for chunk in self.agent.stream(msg, config=self.config, print_mode=()):
+            for k, v in chunk.items():
+                step += 1
+                if self.verbose:
+                    print(f'step {step}: => {k}: {v}')
+                ans = v['messages'][-1].content
+                if step > self.max_iterations:
+                    break
+        return ans
 
     def ask_llm(self, message: str) -> str:
         """
@@ -195,7 +213,7 @@ class MyAgent:
         response = self.llm.invoke(message)
         return response.content
 
-#a = MyAgent('gigachat',use_search=True)
+#a = MyAgent('gigachat',use_search=True,verbose=True,max_iterations=10)
 #a = MyAgent('openrouter', model='openai/gpt-oss-20b:free',use_search=True)
 #print(a.ask('Какой 22.11.2025 день недели? Ответь в одно слово.'))
-#print(ask_agent('Какой сегодня день недели?'))
+#print(a.ask('Какой сегодня день недели?'))
