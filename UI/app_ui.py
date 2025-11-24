@@ -134,6 +134,27 @@ def login_dialog():
         st.write(f'Hello, {login}')
         st.rerun() # restart app
 
+@st.dialog('RAG configuration', width='medium')
+def RAG_dialog():
+    """
+    RAG configuration dialog
+    Adding documents to RAG, cleaning database and so on
+    """
+    #cookies = get_all_cookies()
+    st.header('RAG configuration')
+
+
+    # Add documents
+    uploaded_file = st.file_uploader('add documents to RAG', type=['pdf', 'docx', 'txt'])
+    if uploaded_file is not None:
+        bytes_data = uploaded_file.getvalue()
+        st.write(bytes_data)
+
+    # Cleanup database
+    if st.button('Cleanup database'):
+        st.write('Database cleaned')
+        pass
+
 #======================
 #   main page
 #======================
@@ -208,3 +229,5 @@ else:
         st.markdown('---')
         if st.button('⚙️ Settings'):
             settings_dialog()
+        if st.button('📚 RAG documents'):
+            RAG_dialog()
