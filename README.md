@@ -4,6 +4,7 @@ Mobile assistant 👽
 Personal assistant. Small personal helper to find info in the internet and do some planning.
 
 ### Features:
+  - support Openrouter/Gigachat/Ollama models
   - voice dialog
   - Answer questions based on websearch
 

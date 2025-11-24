@@ -20,6 +20,22 @@ sys.path.append(subdir)
 
 from agent.agent import MyAgent
 
+# list of configs
+llm_providers = ['gigachat', 'openrouter', 'ollama']
+
+openrouter_models = [
+    "openai/gpt-oss-20b:free",
+    "meta-llama/llama-3.3-8b-instruct:free",
+    "z-ai/glm-4.5-air:free"
+]
+
+ollama_models = [
+    "gpt-oss:20b",
+    "qwen3:4b",
+    "llama2-uncensored:latest"
+]
+
+# raed cookies
 cookies = CookieManager(
     prefix="mob_friend/",
     #password=os.environ.get("COOKIES_PASSWORD", "My super secret password"),
@@ -27,10 +43,8 @@ cookies = CookieManager(
 if not cookies.ready():
     st.stop()
 
-
 def get_all_cookies():
     return cookies
-
 
 #======================
 #   dialogs
@@ -56,31 +70,40 @@ def settings_dialog():
 
     login = st.text_input('Login:', value=login)
 
-    #Выбор LLM
-    llm_providers = ['gigachat', 'openrouter']
+    #Select LLM
+
     llm_provider = st.radio('Select LLM provider',
                    llm_providers,
                    llm_providers.index(llm_provider)
                             )
-    if llm == 'openrouter':
-
-        openrouter_models = ['openai/gpt-oss-20b:free',
-         "meta-llama/llama-3.3-8b-instruct:free",
-         "z-ai/glm-4.5-air:free"]
+    if llm_provider == 'openrouter':
+        try:
+            mdl_idx = openrouter_models.index(mdl)
+        except ValueError:
+            mdl_idx = 0
 
         mdl = st.radio('Select model name from provider',
                          openrouter_models,
-                         index=openrouter_models.index(mdl)
+                         index=mdl_idx
+                         )
+    if llm_provider == 'ollama':
+        try:
+            mdl_idx = ollama_models.index(mdl)
+        except ValueError:
+            mdl_idx = 0
+        mdl = st.radio('Select model name from provider',
+                         ollama_models,
+                         index=mdl_idx
                          )
 
-    # Включение голосового интерфейса
+    # Enabled voice input/output
     voice_input_enabled = st.checkbox('Voice input', value = voice_input_enabled)
     voice_output_enabled = st.checkbox('Voice output', value = voice_output_enabled)
 
-    # Поисковик
+    # Web search tools
     use_search_tool = st.checkbox(label="Use websearch tools", value = use_search_tool)
 
-    # Кнопка для сохранения настроек
+    # Save settings
     if st.button('Save'):
         cookies["llm"] = llm_provider
         cookies["use_search"] = str(use_search_tool)
@@ -92,8 +115,6 @@ def settings_dialog():
         cookies.save()
         st.write(f'Settings saved')
         st.rerun() # restart app
-
-
 
 @st.dialog('Enter', width='medium')
 def login_dialog():

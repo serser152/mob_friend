@@ -16,8 +16,10 @@ from langchain_gigachat.chat_models import GigaChat
 from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
 from langgraph.checkpoint.memory import InMemorySaver
+from langchain_ollama import ChatOllama
 
 load_dotenv(find_dotenv())
+
 
 
 
@@ -87,30 +89,10 @@ class WrongLLMException(Exception):
         super().__init__("Invalid LLM:" + self.message)
 
 
-
-def init_openrouter(model="meta-llama/llama-3.3-8b-instruct:free"):
-    """
-    Initialize llm via openrouter
-    """
-    llm=ChatOpenAI(model=model,
-    base_url="https://openrouter.ai/api/v1",
-    api_key=environ.get("OPENROUTER_API_KEY",""))
-    return llm
-
-
-def init_gigachat():
-    """ 
-    Initialize Gigachat
-    """
-    llm = GigaChat(credentials=environ.get("GIGACHAT_API_KEY",""),
-                    verify_ssl_certs=False)
-    return llm
-
-
 def init_llm(
         name='gigachat',
-        model='meta-llama/llama-3.3-8b-instruct:free'
-):
+        model='meta-llama/llama-3.3-8b-instruct:free',
+        ollama_base_url="http://localhost:11434"):
     """
     :param name: openrouter/gigachat
     :param model:
@@ -121,9 +103,16 @@ def init_llm(
     """
 
     if name == 'gigachat':
-        llm = init_gigachat()
+        llm = GigaChat(credentials=environ.get("GIGACHAT_API_KEY",""),
+                    verify_ssl_certs=False)
     elif name == 'openrouter':
-        llm = init_openrouter(model=model)
+        llm = ChatOpenAI(model=model,
+        base_url="https://openrouter.ai/api/v1",
+        api_key=environ.get("OPENROUTER_API_KEY",""))
+    elif name == 'ollama':
+        llm = ChatOllama(model="gpt-oss:20b",
+                        base_url=ollama_base_url)
+        llm.bind_tools(tools)
     else:
         raise WrongLLMException('Unknown llm initialization')
     return llm
@@ -215,5 +204,6 @@ class MyAgent:
 
 #a = MyAgent('gigachat',use_search=True,verbose=True,max_iterations=10)
 #a = MyAgent('openrouter', model='openai/gpt-oss-20b:free',use_search=True)
+a = MyAgent('ollama', model='gpt-oss:20b',use_search=True)
 #print(a.ask('Какой 22.11.2025 день недели? Ответь в одно слово.'))
-#print(a.ask('Какой сегодня день недели?'))
+print(a.ask('Какой завтра день недели?'))
