@@ -17,7 +17,7 @@ from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_ollama import ChatOllama
-
+from ui.settings import MCPServer
 load_dotenv(find_dotenv())
 
 
@@ -163,11 +163,17 @@ class MyAgent:
     For using agent or agent crowd
     """
     llm, agent = None, None
-    def __init__(self, name='gigachat', model='openai/gpt-oss-20b:free', use_search=False, verbose=False, max_iterations=5):
+    def __init__(self, name='gigachat',
+                 model='openai/gpt-oss-20b:free',
+                 use_search=False,
+                 mcp_servers=[],
+                 verbose=False,
+                 max_iterations=5):
         self.llm, self.agent = init_agent(name, model, use_search)
         self.max_iterations = max_iterations
         self.verbose = verbose
         self.config = {'configurable': {'thread_id': 1}}
+        self.mcp_servers = mcp_servers
 
 
     def ask(self, message: str) -> str:
@@ -204,6 +210,6 @@ class MyAgent:
 
 #a = MyAgent('gigachat',use_search=True,verbose=True,max_iterations=10)
 #a = MyAgent('openrouter', model='openai/gpt-oss-20b:free',use_search=True)
-a = MyAgent('ollama', model='gpt-oss:20b',use_search=True)
+#a = MyAgent('ollama', model='gpt-oss:20b',use_search=True)
 #print(a.ask('Какой 22.11.2025 день недели? Ответь в одно слово.'))
-print(a.ask('Какой завтра день недели?'))
+#print(a.ask('Какой завтра день недели?'))
