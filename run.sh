@@ -1,3 +1,3 @@
 #!/bin/bash
-
-streamlit run UI/app_ui.py
+source .venv/bin/activate
+streamlit run ui/app_ui.py

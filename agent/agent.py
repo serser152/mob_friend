@@ -17,7 +17,7 @@ from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_ollama import ChatOllama
-
+from .planning import planning_tools
 load_dotenv(find_dotenv())
 
 
@@ -28,7 +28,7 @@ load_dotenv(find_dotenv())
 # Tools for agent
 #=======================================
 
-tools=[]
+tools=planning_tools
 @tool
 def search_web_ddgs(query: str) -> str:
     """ 
@@ -147,6 +147,7 @@ def init_agent(
         f"Сегодня {today}. "
         "Ты полезный ассистент. Используй search_web_tavily и "
         "search_web_ddgs для поиска информации в интернете. Отвечай кратко и простыми словами."
+        "При ответе не используй markdown формат. Ответ должен содеражать только текст."
     )
     agent = create_agent(
             model = llm,
@@ -204,6 +205,6 @@ class MyAgent:
 
 #a = MyAgent('gigachat',use_search=True,verbose=True,max_iterations=10)
 #a = MyAgent('openrouter', model='openai/gpt-oss-20b:free',use_search=True)
-a = MyAgent('ollama', model='gpt-oss:20b',use_search=True)
+#a = MyAgent('ollama', model='gpt-oss:20b',use_search=True)
 #print(a.ask('Какой 22.11.2025 день недели? Ответь в одно слово.'))
-print(a.ask('Какой завтра день недели?'))
+#print(a.ask('Какой завтра день недели?'))

@@ -8,6 +8,7 @@ from gtts import gTTS
 
 def text_to_speech(text, out_filename='tmp_output.mp3'):
     """Преобразуем текст в звук и сохраняем файл."""
+    text.replace('**', '')
     tts = gTTS(text=text, lang='ru')
     tts.save(out_filename)
 

@@ -1,3 +1,4 @@
+sqlalchemy
 langchain-ollama
 langchain-community
 streamlit-cookies-manager

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from UI.sound_interface import text_to_speech, file_to_text
+from ui.sound_interface import text_to_speech, file_to_text
 import os
 
 class TestLLMBase:
