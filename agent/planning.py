@@ -1,10 +1,12 @@
-import json
+"""Planning module."""
+
 import sqlalchemy as sa
 from sqlalchemy import Table, Column, Integer, String, Text, DateTime, MetaData
 from datetime import datetime
 from langchain.tools import tool
 
 class Planner:
+    """Planner class."""
     def __init__(self, db="sqlite:///planning.db"):
         self.db = db
         self.engine = sa.create_engine(db)
@@ -134,7 +136,9 @@ p = Planner()
 def list_tasks(status: str = "pending") -> str:
     """Получить список задач в планах с указанным статусом.
     Args: status: str - статус задач
-    status может быть: pending (открытая/активная задача), completed (завершенная), in_progress (в процессе)
+    status может быть: pending (открытая/активная задача),
+        completed (завершенная),
+        in_progress (в процессе)
     """
     task_list = [str(t) for t in p.list_tasks(status)]
     s = "Задачи:" + "\n".join(task_list)
@@ -178,7 +182,9 @@ def update_task_status(id: int, status: str) -> str:
     """Обновить статус задачи по id в плане.
     Args: id: int - id of the task to update
           status: str - new status of the task
-    status может быть: pending (открытая/активная задача), completed (завершенная), in_progress (в процессе)
+    status может быть: pending (открытая/активная задача),
+        completed (завершенная),
+        in_progress (в процессе)
     """
     if p.update_task_status(id, status):
         return "Task status updated successfully."
@@ -193,4 +199,5 @@ def cleanup_tasks() -> str:
     except:
         return "Tasks deletion failed."
 
-planning_tools = [add_task, list_tasks, update_task_status, delete_task, cleanup_tasks, list_all_tasks]
+planning_tools = [add_task, list_tasks, update_task_status,
+                  delete_task, cleanup_tasks, list_all_tasks]

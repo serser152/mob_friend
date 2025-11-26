@@ -1,12 +1,12 @@
-import pytest
+"""Тесты для модуля planning"""
 from datetime import datetime, timedelta
+import pytest
 from agent.planning import Planner
 
-
 @pytest.fixture
-def planner():
+def planner_init():
     """Создаёт экземпляр Planner с временной базой данных."""
-    planner = Planner(db=f"sqlite:///test_planning.db")
+    planner = Planner(db="sqlite:///test_planning.db")
     yield planner
     planner.cleanup_tasks()
 

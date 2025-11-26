@@ -164,7 +164,11 @@ class MyAgent:
     For using agent or agent crowd
     """
     llm, agent = None, None
-    def __init__(self, name='gigachat', model='openai/gpt-oss-20b:free', use_search=False, verbose=False, max_iterations=5):
+    def __init__(self, name='gigachat',
+                 model='openai/gpt-oss-20b:free',
+                 use_search=False,
+                 verbose=False,
+                 max_iterations=5):
         self.llm, self.agent = init_agent(name, model, use_search)
         self.max_iterations = max_iterations
         self.verbose = verbose
@@ -175,13 +179,6 @@ class MyAgent:
         """
         return agent answer
         """
-
-        # response = self.agent.invoke(
-        #     {'messages': [{'role': 'user', 'content': message}]},
-        #     config = self.config,
-        #     print_mode='updates'
-        # )
-        # return response['messages'][-1].content
 
         msg = {'messages': [{'role': 'user', 'content': message}]}
         step = 0
