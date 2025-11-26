@@ -7,6 +7,7 @@ Personal assistant. Small personal helper to find info in the internet and do so
   - support Openrouter/Gigachat/Ollama models
   - voice dialog
   - Answer questions based on websearch
+  - simple planning tools
 
 ### Install:
 1) git clone https://github.com/serser152/mob_friend
