@@ -3,27 +3,24 @@ from datetime import datetime, timedelta
 import pytest
 from agent.planning import Planner
 
-@pytest.fixture
-def planner():
-    """Создаёт экземпляр Planner с временной базой данных."""
-    planner = Planner(db="sqlite:///test_planning.db")
-    yield planner
-    planner.cleanup_tasks()
 
-
-def test_init_db(planner):
+def test_init_db():
     """Тест: база данных и таблица создаются корректно."""
+    planner = Planner(db="sqlite:///test_planning.db")
+    planner.cleanup_tasks()
     assert 'plan' in planner.tables
     assert planner.tables['plan'].name == 'plan'
 
 
-def test_add_task(planner):
+def test_add_task():
     """Тест: добавление задачи."""
     name = "Test Task"
     desc = "Test Description"
     start = datetime.now()
     end = start + timedelta(hours=1)
 
+    planner = Planner(db="sqlite:///test_planning.db")
+    planner.cleanup_tasks()
     planner.add_task(name, desc, start, end)
 
     tasks = planner.list_tasks()
@@ -35,22 +32,26 @@ def test_add_task(planner):
     planner.cleanup_tasks()
 
 
-def test_add_duplicate_task(planner):
+def test_add_duplicate_task():
     """Тест: нельзя добавить задачу с одинаковым именем."""
     name = "Unique Task"
     start = datetime.now()
     end = start + timedelta(hours=1)
 
+    planner = Planner(db="sqlite:///test_planning.db")
+    planner.cleanup_tasks()
     planner.add_task(name, "Desc", start, end)
     with pytest.raises(ValueError, match=f"Task with name '{name}' already exists."):
         planner.add_task(name, "Desc2", start, end)
     planner.cleanup_tasks()
 
-def test_list_tasks_by_status(planner):
+def test_list_tasks_by_status():
     """Тест: фильтрация задач по статусу."""
     start = datetime.now()
     end = start + timedelta(hours=1)
 
+    planner = Planner(db="sqlite:///test_planning.db")
+    planner.cleanup_tasks()
     planner.add_task("Task 1", "Desc", start, end)
     planner.add_task("Task 2", "Desc", start, end)
     planner.update_task_status(2, "completed")
@@ -64,11 +65,13 @@ def test_list_tasks_by_status(planner):
     planner.cleanup_tasks()
 
 
-def test_update_task_status(planner):
+def test_update_task_status():
     """Тест: обновление статуса задачи."""
     start = datetime.now()
     end = start + timedelta(hours=1)
 
+    planner = Planner(db="sqlite:///test_planning.db")
+    planner.cleanup_tasks()
     planner.add_task("Update Test", "Desc", start, end)
     planner.update_task_status(1, "in_progress")
 
@@ -78,18 +81,22 @@ def test_update_task_status(planner):
     planner.cleanup_tasks()
 
 
-def test_update_nonexistent_task(planner):
+def test_update_nonexistent_task():
     """Тест: обновление несуществующей задачи."""
+    planner = Planner(db="sqlite:///test_planning.db")
+    planner.cleanup_tasks()
     with pytest.raises(ValueError, match="Task with id=999 not found."):
         planner.update_task_status(999, "pending")
 
 
 
-def test_delete_task(planner):
+def test_delete_task():
     """Тест: удаление задачи."""
     start = datetime.now()
     end = start + timedelta(hours=1)
 
+    planner = Planner(db="sqlite:///test_planning.db")
+    planner.cleanup_tasks()
     planner.add_task("ToDelete", "Desc", start, end)
     planner.delete_task(1)
 
@@ -97,7 +104,9 @@ def test_delete_task(planner):
     assert len(tasks) == 0
 
 
-def test_delete_nonexistent_task(planner):
+def test_delete_nonexistent_task():
     """Тест: удаление несуществующей задачи."""
+    planner = Planner(db="sqlite:///test_planning.db")
+    planner.cleanup_tasks()
     with pytest.raises(ValueError, match="Task with id=999 not found."):
         planner.delete_task(999)

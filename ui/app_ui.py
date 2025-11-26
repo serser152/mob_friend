@@ -3,10 +3,6 @@
 UI for app.
 Runs web interface for agentic system.
 """
-import sys
-import os
-subdir = os.getcwd()
-sys.path.append(subdir)
 
 import streamlit as st
 
