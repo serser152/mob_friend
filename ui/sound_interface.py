@@ -19,8 +19,7 @@ def file_to_text(filename='tmp_in.wav'):
         audio_data = r.record(source)
     try:
         recognized_text = r.recognize_google(audio_data, language='ru-RU')
-    except Exception as e:
+    except ValueError as e:
         print("Ошибка:", str(e))
         return ''
     return recognized_text
-

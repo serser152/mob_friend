@@ -166,12 +166,11 @@ class MyAgent:
     llm, agent = None, None
     def __init__(self, name='gigachat',
                  model='openai/gpt-oss-20b:free',
-                 use_search=False,
-                 verbose=False,
-                 max_iterations=5):
-        self.llm, self.agent = init_agent(name, model, use_search)
-        self.max_iterations = max_iterations
-        self.verbose = verbose
+                 **kwargs):
+        self.use_search = kwargs.get('use_search', False)
+        self.llm, self.agent = init_agent(name, model, self.use_search)
+        self.max_iterations = kwargs.get('max_iterations', 5)
+        self.verbose = kwargs.get('verbose', False)
         self.config = {'configurable': {'thread_id': 1}}
 
 

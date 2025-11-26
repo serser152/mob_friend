@@ -5,20 +5,20 @@ Runs web interface for agentic system.
 """
 import sys
 import os
-
-import streamlit as st
-from streamlit_cookies_manager import EncryptedCookieManager, CookieManager
-from  sound_interface import file_to_text, text_to_speech
-from time import sleep
-
-from dotenv import load_dotenv, find_dotenv
-
-load_dotenv(find_dotenv())
-
 subdir = os.getcwd()
 sys.path.append(subdir)
 
-from agent.agent import MyAgent
+import streamlit as st
+
+with st.spinner("Loading...", show_time=True):
+    from time import sleep
+    from dotenv import load_dotenv, find_dotenv
+    from streamlit_cookies_manager import CookieManager
+    from  ui.sound_interface import file_to_text, text_to_speech
+    from agent.agent import MyAgent
+
+load_dotenv(find_dotenv())
+
 
 # list of configs
 llm_providers = ['gigachat', 'openrouter', 'ollama']
@@ -44,6 +44,7 @@ if not cookies.ready():
     st.stop()
 
 def get_all_cookies():
+    """Get all cookies"""
     return cookies
 
 #======================
@@ -54,21 +55,21 @@ def get_all_cookies():
 def settings_dialog():
     """Settings dialog"""
     # get values from session state
-    login = cookies.get("login", "")
+    _login = cookies.get("login", "")
     llm_provider = cookies.get("llm", "gigachat")
     use_search_tool = cookies.get("use_search", "False")
     voice_input_enabled = cookies.get("voice_input", "False")
     voice_output_enabled = cookies.get("voice_output", "False")
     mdl = cookies.get("model", "openai/gpt-oss-20b:free")
 
-    use_search_tool = True if use_search_tool == "True" else False
-    voice_input_enabled = True if voice_input_enabled == "True" else False
-    voice_output_enabled = True if voice_output_enabled == "True" else False
+    use_search_tool = use_search_tool == "True"
+    voice_input_enabled = voice_input_enabled == "True"
+    voice_output_enabled = voice_output_enabled == "True"
 
     # show form
     st.header('Settings')
 
-    login = st.text_input('Login:', value=login)
+    _login = st.text_input('Login:', value=_login)
 
     #Select LLM
 
@@ -110,10 +111,10 @@ def settings_dialog():
         cookies["voice_input"] = str(voice_input_enabled)
         cookies["voice_output"] = str(voice_output_enabled)
         cookies["model"] = mdl
-        cookies["login"] = login
+        cookies["login"] = _login
 
         cookies.save()
-        st.write(f'Settings saved')
+        st.write('Settings saved')
         st.rerun() # restart app
 
 @st.dialog('Enter', width='medium')
@@ -124,12 +125,12 @@ def login_dialog():
     """
     #cookies = get_all_cookies()
     st.header('Enter')
-    login = st.text_input('Login:')
+    _login = st.text_input('Login:')
 
     if len(login) <= 3:
         st.markdown('Login length must be more than 3 symbols')
     else:
-        cookies["login"] = login
+        cookies["login"] = _login
         cookies.save()
         st.write(f'Hello, {login}')
         st.rerun() # restart app
@@ -140,9 +141,9 @@ def login_dialog():
 
 cookies = get_all_cookies()
 llm = cookies.get("llm", "gigachat")
-use_search = True if cookies.get("use_search", "False") == "True" else False
-voice_input = True if cookies.get("voice_input", "False") == "True" else False
-voice_output = True if cookies.get("voice_output", "False") == "True" else False
+use_search = cookies.get("use_search", "False") == "True"
+voice_input = cookies.get("voice_input", "False") == "True"
+voice_output = cookies.get("voice_output", "False") == "True"
 model = cookies.get("model", "openai/gpt-oss-20b:free")
 login = cookies.get("login", "")
 #save cookies
@@ -158,7 +159,7 @@ if login == "":
 else:
     # initialize llm api
     with st.spinner("Loading...", show_time=True):
-        agent = MyAgent(llm, model, use_search)
+        agent = MyAgent(llm, model, use_search=use_search)
 
     # main page
     st.markdown('## Personal assistant')
@@ -169,6 +170,10 @@ else:
 
         if voice_input:
             def change():
+                """
+                реакция на изменение звука
+                TBD
+                """
                 #st.text =  sound.size
                 sleep(1)
 
@@ -198,6 +203,7 @@ else:
             prompt = st.text_input('Message:', value='')
         with st.spinner("Preparing answer...", show_time=True):
             ans = agent.ask(prompt) if prompt else ''
+            ans = ans.replace('**', '')
         st.markdown(ans)
         if voice_output and ans != '':
             with st.spinner("Preparing voice answer...", show_time=True):

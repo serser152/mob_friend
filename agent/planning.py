@@ -1,8 +1,8 @@
 """Planning module."""
 
+from datetime import datetime
 import sqlalchemy as sa
 from sqlalchemy import Table, Column, Integer, String, Text, DateTime, MetaData
-from datetime import datetime
 from langchain.tools import tool
 
 class Planner:
@@ -18,7 +18,7 @@ class Planner:
     def init_db(self):
         """Create database and table plan if not exists.
         Plan table schema:
-            id: int, primary key
+            task_id: int, primary key
             name: str, unique
             description: str
             start_time: datetime
@@ -26,9 +26,9 @@ class Planner:
             status: str, default "pending"
         """
         if 'plan' not in self.metadata.tables:
-            plan_table = Table(
+            Table(
                 'plan', self.metadata,
-                Column('id', Integer, primary_key=True),
+                Column('task_id', Integer, primary_key=True),
                 Column('name', String(255), unique=True, nullable=False),
                 Column('description', Text),
                 Column('start_time', DateTime),
@@ -84,50 +84,50 @@ class Planner:
                 conn.execute(stmt)
                 conn.commit()
                 return True
-            except sa.exc.IntegrityError:
+            except sa.exc.IntegrityError as e:
                 conn.rollback()
-                raise ValueError(f"Task with name '{name}' already exists.")
+                raise ValueError(f"Task with name '{name}' already exists.") from e
             except Exception as e:
                 conn.rollback()
                 raise e
 
-    def update_task_status(self, id, status):
-        """Update task status by id."""
+    def update_task_status(self, task_id, status):
+        """Update task status by task_id."""
         if 'plan' not in self.tables:
             self.init_db()
 
         table = self.tables['plan']
         with self.engine.connect() as conn:
-            stmt = sa.update(table).where(table.c.id == id).values(status=status)
+            stmt = sa.update(table).where(table.c.task_id == task_id).values(status=status)
             result = conn.execute(stmt)
             conn.commit()
             if result.rowcount == 0:
-                raise ValueError(f"Task with id={id} not found.")
+                raise ValueError(f"Task with id={task_id} not found.")
             return True
 
-    def delete_task(self, id):
-        """Delete task by id."""
+    def delete_task(self, task_id):
+        """Delete task by task_id."""
         if 'plan' not in self.tables:
             self.init_db()
 
         table = self.tables['plan']
         with self.engine.connect() as conn:
-            stmt = sa.delete(table).where(table.c.id == id)
+            stmt = sa.delete(table).where(table.c.task_id == task_id)
             result = conn.execute(stmt)
             conn.commit()
             if result.rowcount == 0:
-                raise ValueError(f"Task with id={id} not found.")
+                raise ValueError(f"Task with id={task_id} not found.")
             return True
 
     def cleanup_tasks(self):
-        """Delete all tasks by id."""
+        """Delete all tasks."""
         if 'plan' not in self.tables:
             self.init_db()
 
         table = self.tables['plan']
         with self.engine.connect() as conn:
             stmt = sa.delete(table)
-            result = conn.execute(stmt)
+            conn.execute(stmt)
             conn.commit()
             return True
 
@@ -154,13 +154,14 @@ def list_all_tasks() -> str:
 
 
 @tool
-def delete_task(id: int) -> str:
-    """Удалить задачу по id из плана.
-    Args: id: int - id of the task to delete
+def delete_task(task_id: int) -> str:
+    """Удалить задачу по task_id из плана.
+    Args: task_id: int - id of the task to delete
     """
     try:
-        p.delete_task(id)
-    except Exception as e:
+        p.delete_task(task_id)
+        return "Task deleted successfully."
+    except ValueError as e:
         return str(e)
 
 def add_task(name: str, description: str, start_time: datetime, end_time: datetime) -> str:
@@ -172,32 +173,31 @@ def add_task(name: str, description: str, start_time: datetime, end_time: dateti
           end_time: datetime - end time of the task
           """
     try:
-        if p.add_task(name, description, start_time, end_time):
-            return "Task added successfully."
-    except Exception as e:
+        p.add_task(name, description, start_time, end_time)
+        return "Task added successfully."
+    except ValueError as e:
         return str(e)
 
 @tool
-def update_task_status(id: int, status: str) -> str:
-    """Обновить статус задачи по id в плане.
-    Args: id: int - id of the task to update
+def update_task_status(task_id: int, status: str) -> str:
+    """Обновить статус задачи по task_id в плане.
+    Args: task_id: int - id of the task to update
           status: str - new status of the task
     status может быть: pending (открытая/активная задача),
         completed (завершенная),
         in_progress (в процессе)
     """
-    if p.update_task_status(id, status):
+    if p.update_task_status(task_id, status):
         return "Task status updated successfully."
-    else:
-        return "Task status update failed."
+    return "Task status update failed."
 @tool
 def cleanup_tasks() -> str:
     """Очистить все задачи в плане."""
     try:
         p.cleanup_tasks()
         return "All tasks deleted successfully."
-    except:
-        return "Tasks deletion failed."
+    except ValueError as e:
+        return f"Tasks deletion failed.{e}"
 
 planning_tools = [add_task, list_tasks, update_task_status,
                   delete_task, cleanup_tasks, list_all_tasks]

@@ -4,7 +4,7 @@ import pytest
 from agent.planning import Planner
 
 @pytest.fixture
-def planner_init():
+def planner():
     """Создаёт экземпляр Planner с временной базой данных."""
     planner = Planner(db="sqlite:///test_planning.db")
     yield planner
