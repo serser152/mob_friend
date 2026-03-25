@@ -46,6 +46,20 @@ def get_all_cookies():
 #======================
 #   dialogs
 #======================
+@st.dialog('Настройки промта', width='medium')
+def prompt_dialog():
+    """Prompt dialog"""
+    _prompt = cookies.get("prompt", "")
+    # Save prompt settings
+    _prompt = st.text_area('Prompt:', value=_prompt)
+    if st.button('Save'):
+        cookies["prompt"] = _prompt
+
+        cookies.save()
+        st.write('Saved')
+        st.rerun() # restart app
+
+
 
 @st.dialog('Settings', width='medium')
 def settings_dialog():
@@ -142,8 +156,10 @@ voice_input = cookies.get("voice_input", "False") == "True"
 voice_output = cookies.get("voice_output", "False") == "True"
 model = cookies.get("model", "openai/gpt-oss-20b:free")
 login = cookies.get("login", "")
+context_prompt=cookies.get("prompt", "")
 #save cookies
 cookies["llm"] = llm
+cookies["prompt"] = context_prompt
 cookies["use_search"] = str(use_search)
 cookies["voice_input"] = str(voice_input)
 cookies["voice_output"] = str(voice_output)
@@ -155,7 +171,11 @@ if login == "":
 else:
     # initialize llm api
     with st.spinner("Loading...", show_time=True):
-        agent = MyAgent(llm, model, use_search=use_search)
+        if len(context_prompt) > 0:
+            agent = MyAgent(llm, model, use_search=use_search,system_prompt=context_prompt)
+        else:
+            agent = MyAgent(llm, model, use_search=use_search)
+            cookies["prompt"] = agent.system_prompt
 
     # main page
     st.markdown('## Personal assistant')
@@ -210,3 +230,5 @@ else:
         st.markdown('---')
         if st.button('⚙️ Settings'):
             settings_dialog()
+        if st.button('📜 Prompt'):
+            prompt_dialog()
