@@ -12,19 +12,20 @@ Personal assistant. Small personal helper to find info in the internet and do so
 ### Install:
 1) git clone https://github.com/serser152/mob_friend
 2) Create .env like .env.example. Fill the values
-3) (optional) Enable https 
+3) (optional) Enable https to improve security 
 ```
 mv .streamlit/config.toml.example .streamlit/config.toml
 cd keys
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365
 ```
 remember password!
+
 4) Run on linux:
 
 ```
 python -m venv venv
 source venv/bin/activate
-pip install -r requirements
+pip install -r requirements.txt
 ./run.sh
 ```
 enter password for https
@@ -38,3 +39,9 @@ the following will be displayed
 ```
 
 
+### Example of work
+
+![main](images/1.png)
+![settings](images/2.png)
+![voice input](images/3.png)
+![voice input](images/4.png)

@@ -118,9 +118,10 @@ def init_llm(
     return llm
 
 def init_agent(
-        llm_provider='gigachat',
-        model='openai/gpt-oss-20b:free',
-        use_search=False
+        llm_provider = 'gigachat',
+        model = 'openai/gpt-oss-20b:free',
+        use_search = False,
+        system_prompt = None
 ):
     """
 
@@ -142,13 +143,6 @@ def init_agent(
 
     checkpointer = InMemorySaver()
 
-    today = date.today().strftime("%d.%m.%Y")  # DD.MM.YYYY
-    system_prompt = (
-        f"Сегодня {today}. "
-        "Ты полезный ассистент. Используй search_web_tavily и "
-        "search_web_ddgs для поиска информации в интернете. Отвечай кратко и простыми словами."
-        "При ответе не используй markdown формат. Ответ должен содеражать только текст."
-    )
     agent = create_agent(
             model = llm,
             tools = tools_used,
@@ -168,7 +162,21 @@ class MyAgent:
                  model='openai/gpt-oss-20b:free',
                  **kwargs):
         self.use_search = kwargs.get('use_search', False)
-        self.llm, self.agent = init_agent(name, model, self.use_search)
+        today = date.today().strftime("%d.%m.%Y")  # DD.MM.YYYY
+        self.system_prompt = kwargs.get(
+            'system_prompt', (
+            "Мы находимся в г. Нижний Новгород."
+            "Ты полезный ассистент. Используй search_web_tavily и "
+            "search_web_ddgs для поиска информации в интернете. Отвечай кратко и простыми словами."
+            "При ответе не используй markdown формат. Ответ должен содеражать только текст."
+            ))
+        self.system_prompt = f"Сегодня {today}." + self.system_prompt
+        self.llm, self.agent = init_agent(
+            name,
+            model,
+            self.use_search, 
+            system_prompt=self.system_prompt
+        )
         self.max_iterations = kwargs.get('max_iterations', 5)
         self.verbose = kwargs.get('verbose', False)
         self.config = {'configurable': {'thread_id': 1}}
