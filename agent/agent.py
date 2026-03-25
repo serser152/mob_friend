@@ -174,7 +174,7 @@ class MyAgent:
         self.llm, self.agent = init_agent(
             name,
             model,
-            self.use_search, 
+            self.use_search,
             system_prompt=self.system_prompt
         )
         self.max_iterations = kwargs.get('max_iterations', 5)
