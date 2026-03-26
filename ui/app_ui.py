@@ -39,9 +39,11 @@ cookies = CookieManager(
 if not cookies.ready():
     st.stop()
 
+
 def get_all_cookies():
     """Get all cookies"""
     return cookies
+
 
 #======================
 #   dialogs
@@ -58,7 +60,6 @@ def prompt_dialog():
         cookies.save()
         st.write('Saved')
         st.rerun() # restart app
-
 
 
 @st.dialog('Settings', width='medium')
