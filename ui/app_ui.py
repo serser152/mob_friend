@@ -127,14 +127,13 @@ def settings_dialog():
         st.write('Settings saved')
         st.rerun() # restart app
 
-@st.dialog('Enter', width='medium')
+@st.dialog('Login', width='medium')
 def login_dialog():
     """
     Login dialog
     Reading and saving login for unique user
     """
     #cookies = get_all_cookies()
-    st.header('Enter')
     _login = st.text_input('Login:')
 
     if len(login) <= 3:
