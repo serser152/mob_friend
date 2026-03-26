@@ -137,7 +137,7 @@ def login_dialog():
     st.header('Enter')
     _login = st.text_input('Login:')
 
-    if len(login) <= 3:
+    if len(_login) <= 3:
         st.markdown('Login length must be more than 3 symbols')
     else:
         cookies["login"] = _login
