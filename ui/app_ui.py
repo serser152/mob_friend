@@ -12,7 +12,7 @@ with st.spinner("Loading...", show_time=True):
     from streamlit_cookies_manager import CookieManager
     from  ui.sound_interface import file_to_text, text_to_speech
     from agent.agent import MyAgent
-
+    
 load_dotenv(find_dotenv())
 
 
@@ -59,6 +59,7 @@ def prompt_dialog():
 
         cookies.save()
         st.write('Saved')
+        print('Prompt saved')
         st.rerun() # restart app
 
 
@@ -72,6 +73,7 @@ def settings_dialog():
     voice_input_enabled = cookies.get("voice_input", "False")
     voice_output_enabled = cookies.get("voice_output", "False")
     mdl = cookies.get("model", "openai/gpt-oss-20b:free")
+    mcp_server = cookies.get("mcp_server", "")
 
     use_search_tool = use_search_tool == "True"
     voice_input_enabled = voice_input_enabled == "True"
@@ -108,12 +110,16 @@ def settings_dialog():
                          index=mdl_idx
                          )
 
+    # mcp server
+    _mcp_server = st.text_input('MCP server:', value=mcp_server)
+
     # Enabled voice input/output
     voice_input_enabled = st.checkbox('Voice input', value = voice_input_enabled)
     voice_output_enabled = st.checkbox('Voice output', value = voice_output_enabled)
 
     # Web search tools
     use_search_tool = st.checkbox(label="Use websearch tools", value = use_search_tool)
+
 
     # Save settings
     if st.button('Save'):
@@ -123,9 +129,11 @@ def settings_dialog():
         cookies["voice_output"] = str(voice_output_enabled)
         cookies["model"] = mdl
         cookies["login"] = _login
+        cookies["mcp_server"] = _mcp_server
 
         cookies.save()
         st.write('Settings saved')
+        print('Settings saved')
         st.rerun() # restart app
 
 @st.dialog('Login', width='medium')
@@ -143,6 +151,7 @@ def login_dialog():
         cookies["login"] = _login
         cookies.save()
         st.write(f'Hello, {login}')
+        print('login saved')
         st.rerun() # restart app
 
 #======================
@@ -156,6 +165,7 @@ voice_input = cookies.get("voice_input", "False") == "True"
 voice_output = cookies.get("voice_output", "False") == "True"
 model = cookies.get("model", "openai/gpt-oss-20b:free")
 login = cookies.get("login", "")
+mcp_server = cookies.get("mcp_server", "")
 context_prompt=cookies.get("prompt", "")
 #save cookies
 cookies["llm"] = llm
@@ -164,17 +174,20 @@ cookies["use_search"] = str(use_search)
 cookies["voice_input"] = str(voice_input)
 cookies["voice_output"] = str(voice_output)
 cookies["model"] = model
+cookies["mcp_server"] = mcp_server
 cookies.save()
+
 
 if login == "":
     login_dialog()
 else:
     # initialize llm api
+    print("Initialize agent")
     with st.spinner("Loading...", show_time=True):
         if len(context_prompt) > 0:
-            agent = MyAgent(llm, model, use_search=use_search,system_prompt=context_prompt)
+            agent = MyAgent(llm, model, use_search=use_search,system_prompt=context_prompt, mcp_server=mcp_server)
         else:
-            agent = MyAgent(llm, model, use_search=use_search)
+            agent = MyAgent(llm, model, use_search=use_search, mcp_server=mcp_server)
             cookies["prompt"] = agent.system_prompt
 
     # main page

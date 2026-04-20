@@ -7,6 +7,7 @@ Agent tools and llm initialization
 from datetime import date
 from datetime import datetime
 from os import environ
+import asyncio
 
 from ddgs import DDGS
 from dotenv import load_dotenv, find_dotenv
@@ -17,7 +18,8 @@ from langchain_openai import ChatOpenAI
 from langchain_tavily import TavilySearch
 from langgraph.checkpoint.memory import InMemorySaver
 from langchain_ollama import ChatOllama
-from .planning import planning_tools
+from langchain_mcp_adapters.client import MultiServerMCPClient
+#from .planning import planning_tools
 load_dotenv(find_dotenv())
 
 
@@ -28,7 +30,8 @@ load_dotenv(find_dotenv())
 # Tools for agent
 #=======================================
 
-tools=planning_tools
+tools = []
+#tools=planning_tools
 @tool
 def search_web_ddgs(query: str) -> str:
     """ 
@@ -75,6 +78,21 @@ def get_current_date():
 
 tools.append(get_current_date)
 
+async def get_mcp_tools(mcp_server=""):
+    if mcp_server and mcp_server != "":
+        client = MultiServerMCPClient(
+            {
+                "planner": {
+                    "url": "http://localhost:8000/mcp",
+                    "transport": "streamable_http",
+                }
+            }
+        )
+        tools = await client.get_tools()
+        print(f'Found tools from server {mcp_server}:', tools)
+        return tools
+    return None
+
 
 #======================================
 #   Agent section
@@ -92,7 +110,7 @@ class WrongLLMException(Exception):
 def init_llm(
         name='gigachat',
         model='meta-llama/llama-3.3-8b-instruct:free',
-        ollama_base_url="http://localhost:11434"):
+        ollama_base_url="http://localhost:11434", tools=[]):
     """
     :param name: openrouter/gigachat
     :param model:
@@ -121,7 +139,8 @@ def init_agent(
         llm_provider = 'gigachat',
         model = 'openai/gpt-oss-20b:free',
         use_search = False,
-        system_prompt = None
+        system_prompt = None,
+        mcp_server=""
 ):
     """
 
@@ -133,12 +152,21 @@ def init_agent(
     :param use_search: use web search tools
     :return:
     """
-    llm = init_llm(llm_provider, model)
 
+    # search tools
     if use_search:
         tools_used = tools
     else:
         tools_used = []
+
+    # mcp server
+    if mcp_server != "":
+        new_loop = asyncio.new_event_loop()
+        mcp_tools = new_loop.run_until_complete(get_mcp_tools(mcp_server))
+        tools_used += mcp_tools
+
+
+    llm = init_llm(llm_provider, model, tools = tools_used)
 
 
     checkpointer = InMemorySaver()
@@ -171,11 +199,13 @@ class MyAgent:
             "При ответе не используй markdown формат. Ответ должен содеражать только текст."
             ))
         self.system_prompt = f"Сегодня {today}." + self.system_prompt
+        self.mcp_server = kwargs.get('mcp_server', "")
         self.llm, self.agent = init_agent(
             name,
             model,
             self.use_search,
-            system_prompt=self.system_prompt
+            system_prompt=self.system_prompt,
+            mcp_server = self.mcp_server
         )
         self.max_iterations = kwargs.get('max_iterations', 5)
         self.verbose = kwargs.get('verbose', False)
@@ -186,19 +216,16 @@ class MyAgent:
         """
         return agent answer
         """
+        new_loop = asyncio.new_event_loop()
+        return new_loop.run_until_complete(
+            ask_agent_w_limit(
+                agent = self.agent, 
+                message = message, 
+                max_iterations = self.max_iterations, 
+                config = self.config, 
+                verbose = True)
+            )
 
-        msg = {'messages': [{'role': 'user', 'content': message}]}
-        step = 0
-        ans = ''
-        for chunk in self.agent.stream(msg, config=self.config, print_mode=()):
-            for k, v in chunk.items():
-                step += 1
-                if self.verbose:
-                    print(f'step {step}: => {k}: {v}')
-                ans = v['messages'][-1].content
-                if step > self.max_iterations:
-                    break
-        return ans
 
     def ask_llm(self, message: str) -> str:
         """
@@ -206,6 +233,22 @@ class MyAgent:
         """
         response = self.llm.invoke(message)
         return response.content
+
+async def ask_agent_w_limit(agent, message, max_iterations, config, verbose):
+        msg = {'messages': [{'role': 'user', 'content': message}]}
+        step = 0
+        ans = ''
+        async for chunk in agent.astream(msg, config=config, print_mode=()):
+            for k, v in chunk.items():
+                step += 1
+                if verbose:
+                    print(f'step {step}: => {k}: {v}')
+                ans = v['messages'][-1].content
+                if step > max_iterations:
+                    break
+        return ans
+
+
 
 #a = MyAgent('gigachat',use_search=True,verbose=True,max_iterations=10)
 #a = MyAgent('openrouter', model='openai/gpt-oss-20b:free',use_search=True)
