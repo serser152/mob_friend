@@ -11,3 +11,5 @@ tmp_in.wav
 .idea/*
 keys/*
 *.db
+clo_publish.sh
+

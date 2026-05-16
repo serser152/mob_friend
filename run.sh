@@ -1,4 +1,4 @@
 #!/bin/bash
 source venv/bin/activate
 export PYTHONPATH=$(pwd)
-streamlit run ui/app_ui.py
+streamlit run --server.port=8503 ui/app_ui.py

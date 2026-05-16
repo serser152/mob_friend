@@ -165,7 +165,7 @@ voice_input = cookies.get("voice_input", "False") == "True"
 voice_output = cookies.get("voice_output", "False") == "True"
 model = cookies.get("model", "openai/gpt-oss-20b:free")
 login = cookies.get("login", "")
-mcp_server = cookies.get("mcp_server", "")
+mcp_server = cookies.get("mcp_server", "http://localhost:8000")
 context_prompt=cookies.get("prompt", "")
 #save cookies
 cookies["llm"] = llm

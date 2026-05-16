@@ -83,7 +83,7 @@ async def get_mcp_tools(mcp_server=""):
         client = MultiServerMCPClient(
             {
                 "planner": {
-                    "url": "http://localhost:8000/mcp",
+                    "url": f"{mcp_server}/mcp",
                     "transport": "streamable_http",
                 }
             }
@@ -162,8 +162,11 @@ def init_agent(
     # mcp server
     if mcp_server != "":
         new_loop = asyncio.new_event_loop()
-        mcp_tools = new_loop.run_until_complete(get_mcp_tools(mcp_server))
-        tools_used += mcp_tools
+        try:
+            mcp_tools = new_loop.run_until_complete(get_mcp_tools(mcp_server))
+            tools_used += mcp_tools
+        except Exception as e:
+            print(f'Exception conecting mcp server: {e}')
 
 
     llm = init_llm(llm_provider, model, tools = tools_used)
