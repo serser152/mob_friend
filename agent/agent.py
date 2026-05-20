@@ -79,6 +79,7 @@ def get_current_date():
 tools.append(get_current_date)
 
 async def get_mcp_tools(mcp_server=""):
+    """Get mcp tools from mcp server"""
     if mcp_server and mcp_server != "":
         client = MultiServerMCPClient(
             {
@@ -88,9 +89,9 @@ async def get_mcp_tools(mcp_server=""):
                 }
             }
         )
-        tools = await client.get_tools()
-        print(f'Found tools from server {mcp_server}:', tools)
-        return tools
+        found_tools = await client.get_tools()
+        print(f'Found tools from server {mcp_server}:', found_tools)
+        return found_tools
     return None
 
 
@@ -110,8 +111,9 @@ class WrongLLMException(Exception):
 def init_llm(
         name='gigachat',
         model='meta-llama/llama-3.3-8b-instruct:free',
-        ollama_base_url="http://localhost:11434", tools=[]):
+        ollama_base_url="http://localhost:11434", tools=None):
     """
+    :param tools: tools for llm
     :param name: openrouter/gigachat
     :param model:
         "meta-llama/llama-3.3-8b-instruct:free"
@@ -169,7 +171,7 @@ def init_agent(
             print(f'Exception conecting mcp server: {e}')
 
 
-    llm = init_llm(llm_provider, model, tools = tools_used)
+    llm = init_llm(llm_provider, model, tools=tools_used)
 
 
     checkpointer = InMemorySaver()
@@ -229,7 +231,6 @@ class MyAgent:
                 verbose = True)
             )
 
-
     def ask_llm(self, message: str) -> str:
         """
         return model answer
@@ -238,20 +239,27 @@ class MyAgent:
         return response.content
 
 async def ask_agent_w_limit(agent, message, max_iterations, config, verbose):
-        msg = {'messages': [{'role': 'user', 'content': message}]}
-        step = 0
-        ans = ''
-        async for chunk in agent.astream(msg, config=config, print_mode=()):
-            for k, v in chunk.items():
-                step += 1
-                if verbose:
-                    print(f'step {step}: => {k}: {v}')
-                ans = v['messages'][-1].content
-                if step > max_iterations:
-                    break
-        return ans
-
-
+    """
+    Ask agent with limit iterations
+    :param agent: agent
+    :param message: user message
+    :param max_iterations: max iterations
+    :param config:
+    :param verbose:
+    :return:
+    """
+    msg = {'messages': [{'role': 'user', 'content': message}]}
+    step = 0
+    ans = ''
+    async for chunk in agent.astream(msg, config=config, print_mode=()):
+        for k, v in chunk.items():
+            step += 1
+            if verbose:
+                print(f'step {step}: => {k}: {v}')
+            ans = v['messages'][-1].content
+            if step > max_iterations:
+                break
+    return ans
 
 #a = MyAgent('gigachat',use_search=True,verbose=True,max_iterations=10)
 #a = MyAgent('openrouter', model='openai/gpt-oss-20b:free',use_search=True)
