@@ -45,3 +45,8 @@ the following will be displayed
 ![settings](images/2.png)
 ![voice input](images/3.png)
 ![voice input](images/4.png)
+
+### Example usage
+1) ask what to cook today
+2) ask something about current news
+3) ask to enable some video on home pc (if mcp-server connected)
