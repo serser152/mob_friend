@@ -111,7 +111,7 @@ class WrongLLMException(Exception):
 def init_llm(
         name='gigachat',
         model='meta-llama/llama-3.3-8b-instruct:free',
-        ollama_base_url="http://localhost:11434", tools=None):
+        ollama_base_url="http://localhost:11434", mytools=None):
     """
     :param tools: tools for llm
     :param name: openrouter/gigachat
@@ -132,7 +132,7 @@ def init_llm(
     elif name == 'ollama':
         llm = ChatOllama(model="gpt-oss:20b",
                         base_url=ollama_base_url)
-        llm.bind_tools(tools)
+        llm.bind_tools(mytools)
     else:
         raise WrongLLMException('Unknown llm initialization')
     return llm
@@ -170,9 +170,7 @@ def init_agent(
         except Exception as e:
             print(f'Exception conecting mcp server: {e}')
 
-
     llm = init_llm(llm_provider, model, tools=tools_used)
-
 
     checkpointer = InMemorySaver()
 
@@ -190,7 +188,9 @@ class MyAgent:
     Agent class
     For using agent or agent crowd
     """
-    llm, agent = None, None
+    llm = None
+    agent = None
+
     def __init__(self, name='gigachat',
                  model='openai/gpt-oss-20b:free',
                  **kwargs):
@@ -224,10 +224,10 @@ class MyAgent:
         new_loop = asyncio.new_event_loop()
         return new_loop.run_until_complete(
             ask_agent_w_limit(
-                agent = self.agent, 
-                message = message, 
-                max_iterations = self.max_iterations, 
-                config = self.config, 
+                agent = self.agent,
+                message = message,
+                max_iterations = self.max_iterations,
+                config = self.config,
                 verbose = True)
             )
 
